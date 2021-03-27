@@ -35,7 +35,7 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.urandom(32)
-    #app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE URL")
 
     # Flask-Bootstrap requires this line
     Bootstrap(app)
