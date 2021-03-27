@@ -14,17 +14,17 @@ from flask import (Flask,
 from flask_cors import CORS
 from flask_bootstrap import Bootstrap
 
-from .forms import (SelectDeck, MainFormNoLabel)
+from forms import (SelectDeck, MainFormNoLabel)
 
-from .models import (db,
+from models import (db,
                      Decks,
                      AuditTrail,
                      Questions)
-from .stanza_wrapper import stanza_wrapper
+from stanza_wrapper import stanza_wrapper
 
-from .drop_everything import drop_everything
+from drop_everything import drop_everything
 
-from .text_area_field_handler import text_area_field_handler
+from text_area_field_handler import text_area_field_handler
 
 #----------------------------------------------------------------------------#
 # App Config.
