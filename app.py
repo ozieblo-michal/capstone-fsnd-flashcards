@@ -43,10 +43,10 @@ def create_app(test_config=None):
     db.app = app
     db.init_app(app)
 
-    drop_everything()
+    #drop_everything()
 
-    db.drop_all()
-    db.create_all()
+    #db.drop_all()
+    #db.create_all()
 
     CORS(app)
 
