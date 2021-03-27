@@ -1,0 +1,98 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block styles %}
+{{ super() }}
+	<style>
+		body { background: #e8f1f9; }
+
+		input[type=text]{
+                  display: table-cell;
+                  font-size:11px;
+                  padding:4px 2px;
+                  border:solid 1px #aacfe4;
+                  width:60%;
+                  margin:2px 0 20px 10px;
+              }
+
+        ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        }
+	</style>
+{% endblock %}
+
+{% block title %}
+Capstone project
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+      <h1 class="pt-5 pb-2">Manage decks</h1>
+
+      <p class="lead"></p>
+
+      <a href="/"><button>Take me to the main page</button></a>
+
+      <p></p>
+
+      <form method="POST" align="center">
+
+        {{ form.csrf_token }}
+        {{ form.pick_the_deck }}
+
+        <input class="delete-button" type="button" value="Delete">
+
+      </form>
+
+      <p></p>
+
+      <script>
+        const deleteBtn = document.querySelectorAll('.delete-button');
+        const btn = deleteBtn[0];
+        btn.onclick = function(e) {
+          const deckId = document.getElementById("removedeck").value;
+          fetch('/deckremove/' + deckId, { method: 'DELETE' });
+          document.location.reload();
+          }
+      </script>
+
+      <ul>
+        {% for question in questions %}
+          <li>
+            <p>S: {{question.sentence}}</p>
+            <p>Q: {{question.question}}</p>
+            <p>A: {{question.answer}}</p>
+
+            <form method="POST" action="./updatesentence">
+              <input type="hidden" value="{{question.id}}" name="oldsentenceid">
+              <input type="text" value="{{question.sentence}}" name="newsentence">
+              <input type="submit" value="Update sentence">
+            </form>
+
+            <form method="POST" action="./updatequestion">
+              <input type="hidden" value="{{question.id}}" name="oldquestionid">
+              <input type="text" value="{{question.question}}" name="newquestion">
+              <input type="submit" value="Update question">
+            </form>
+
+            <form method="POST" action="./updateanswer">
+              <input type="hidden" value="{{question.id}}" name="oldanswerid">
+              <input type="text" value="{{question.answer}}" name="newanswer">
+              <input type="submit" value="Update answer">
+            </form>
+
+          </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
