@@ -220,10 +220,9 @@ app = create_app()
 # Launch.
 #----------------------------------------------------------------------------#
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',
-            port=8080,
-            debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 # https://bitadj.medium.com/completely-uninstall-and-reinstall-psql-on-osx-551390904b86
 # https://medium.com/@richardgong/how-to-upgrade-postgres-db-on-mac-homebrew-99516db3e57f
