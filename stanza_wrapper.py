@@ -1,5 +1,5 @@
-from .suggest_gaps import suggest_gaps
-from .parse_sentence import parse_sentence
+from suggest_gaps import suggest_gaps
+from parse_sentence import parse_sentence
 import pandas as pd
 
 #OUTPUT_FILE_NAME = "results.csv" #TODO# connect to the database

@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 import wtforms
 from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from .models import Decks
+from models import Decks
 
 #----------------------------------------------------------------------------#
 # Forms.

@@ -1,7 +1,7 @@
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.schema import DropConstraint, DropTable, MetaData, Table
 
-from .models import db
+from models import db
 
 def drop_everything():
     """(On a live db) drops all foreign key constraints before dropping all tables.
