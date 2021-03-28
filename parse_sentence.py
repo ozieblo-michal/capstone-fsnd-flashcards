@@ -1,6 +1,10 @@
 import stanza
 
-def parse_sentence(input_text: str, language: str = "en") -> stanza.Document:
+from app import nlp
+
+nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
+
+def parse_sentence(input_text: str, nlp) -> stanza.Document:
 
     """
     Parse sentence into an intermediate representation.
@@ -10,7 +14,7 @@ def parse_sentence(input_text: str, language: str = "en") -> stanza.Document:
     """
 
     try:
-        nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
+        # nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
         return nlp(input_text)
     except:
         try:

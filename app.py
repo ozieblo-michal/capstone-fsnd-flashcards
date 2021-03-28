@@ -26,6 +26,10 @@ from drop_everything import drop_everything
 
 from text_area_field_handler import text_area_field_handler
 
+#import stanza
+
+#nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
