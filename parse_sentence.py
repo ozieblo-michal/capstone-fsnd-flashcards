@@ -1,6 +1,9 @@
 import stanza
 
-stanza.download('en')
+try:
+    stanza.download('en')
+except AssertionError:
+    pass
 
 nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
 
