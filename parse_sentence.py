@@ -1,6 +1,6 @@
 import stanza
 
-#from app import nlp
+stanza.download('en')
 
 nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
 
