@@ -2,7 +2,7 @@ import stanza
 
 #from app import nlp
 
-nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
+nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
 
 def parse_sentence(input_text: str, nlp) -> stanza.Document:
 
