@@ -20,17 +20,11 @@ from models import (db,
                      Decks,
                      AuditTrail,
                      Questions)
-from stanza_wrapper import stanza_wrapper
 
 from drop_everything import drop_everything
 
-from text_area_field_handler import text_area_field_handler
-
 import pandas as pd
 
-#import stanza
-
-#nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -43,7 +37,7 @@ def create_app(test_config=None):
     app.config['SECRET_KEY'] = os.urandom(32)
 
     #DB_URL = "postgresql:///herok"
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
     #app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
@@ -87,11 +81,6 @@ def create_app(test_config=None):
         answer = form.create_questions.answer.data.strip()
 
         deck_name = form.create_questions.deck_name.data.strip()
-
-        #sentences_list = text_area_field_handler(note)
-
-        # assign output from the Stanza into database
-        #stanza_output = stanza_wrapper(sentences_list)
 
         stanza_output = pd.DataFrame([[question, answer, sentence]], columns=['Question', 'Answer', 'Sentence'])
 

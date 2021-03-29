@@ -8,6 +8,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
-RUN python download_dependencies.py
-
-CMD python app.py
+CMD gunicorn app:app
