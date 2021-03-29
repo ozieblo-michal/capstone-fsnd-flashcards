@@ -10,7 +10,9 @@ from models import Decks
 
 #### https://wtforms.readthedocs.io/en/2.3.x/fields/
 class CreateQuestions(FlaskForm):
-    note = wtforms.TextAreaField('Copy below your note:', validators=[DataRequired()])
+    sentence = wtforms.TextAreaField('Copy below your sentence:', validators=[DataRequired()])
+    question = wtforms.TextAreaField('Put your question:', validators=[DataRequired()])
+    answer = wtforms.TextAreaField('Provide the answer:', validators=[DataRequired()])
     deck_name = wtforms.StringField('Put the deck name:', validators=[DataRequired()])
 
 class SubmitNote(FlaskForm):

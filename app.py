@@ -26,6 +26,8 @@ from drop_everything import drop_everything
 
 from text_area_field_handler import text_area_field_handler
 
+import pandas as pd
+
 #import stanza
 
 #nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
@@ -51,10 +53,10 @@ def create_app(test_config=None):
     db.app = app
     db.init_app(app)
 
-    #drop_everything()
+    drop_everything()
 
-    #db.drop_all()
-    #db.create_all()
+    db.drop_all()
+    db.create_all()
 
     CORS(app)
 
@@ -80,14 +82,18 @@ def create_app(test_config=None):
         form = MainFormNoLabel()
 
         # insert for the Stanza
-        note = form.create_questions.note.data.strip()
+        sentence = form.create_questions.sentence.data.strip()
+        question = form.create_questions.question.data.strip()
+        answer = form.create_questions.answer.data.strip()
 
         deck_name = form.create_questions.deck_name.data.strip()
 
-        sentences_list = text_area_field_handler(note)
+        #sentences_list = text_area_field_handler(note)
 
         # assign output from the Stanza into database
-        stanza_output = stanza_wrapper(sentences_list)
+        #stanza_output = stanza_wrapper(sentences_list)
+
+        stanza_output = pd.DataFrame([[question, answer, sentence]], columns=['Question', 'Answer', 'Sentence'])
 
         if form.validate():
             flash(form.errors)
@@ -98,8 +104,11 @@ def create_app(test_config=None):
 
             try:
 
-                new_deck = Decks(name=deck_name)
-                db.session.add(new_deck)
+                is_it_current_deck = Decks.query.filter(Decks.name == deck_name).one_or_none()
+
+                if is_it_current_deck is None:
+                    new_deck = Decks(name=deck_name)
+                    db.session.add(new_deck)
 
                 for index, record in stanza_output.iterrows():
 
@@ -114,8 +123,11 @@ def create_app(test_config=None):
 
                     db.session.add(new_question)
 
-                    # https://stackoverflow.com/questions/16433338/inserting-new-records-with-one-to-many-relationship-in-sqlalchemy
-                    new_deck.auditTrail.append(new_record)
+                    if is_it_current_deck is None:
+                        # https://stackoverflow.com/questions/16433338/inserting-new-records-with-one-to-many-relationship-in-sqlalchemy
+                        new_deck.auditTrail.append(new_record)
+                    else:
+                        is_it_current_deck.auditTrail.append(new_record)
 
                 db.session.commit()
 

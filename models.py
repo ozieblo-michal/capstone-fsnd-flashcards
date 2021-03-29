@@ -14,7 +14,7 @@ class Decks(db.Model):
     __tablename__ = "decks"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True)
+    name = db.Column(db.String(120), unique=False)
 
     # https://stackoverflow.com/questions/25002620/argumenterror-relationship-expects-a-class-or-mapper-argument
     # "Explicit is better than implicit" (Zen of Python)
