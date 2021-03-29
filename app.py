@@ -42,8 +42,8 @@ def create_app(test_config=None):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.urandom(32)
 
-    DB_URL = "postgresql:///herok"
-    app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
+    #DB_URL = "postgresql:///herok"
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
     #app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
@@ -53,10 +53,10 @@ def create_app(test_config=None):
     db.app = app
     db.init_app(app)
 
-    drop_everything()
+    #drop_everything()
 
-    db.drop_all()
-    db.create_all()
+    #db.drop_all()
+    #db.create_all()
 
     CORS(app)
 
