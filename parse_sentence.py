@@ -1,13 +1,6 @@
 import stanza
 
-try:
-    stanza.download('en', processors="tokenize,lemma,pos,depparse")
-except AssertionError:
-    pass
-
-nlp = stanza.Pipeline("en", processors="tokenize,lemma,pos,depparse")
-
-def parse_sentence(input_text: str, nlp) -> stanza.Document:
+def parse_sentence(input_text: str, language: str = "en") -> stanza.Document:
 
     """
     Parse sentence into an intermediate representation.
@@ -17,7 +10,7 @@ def parse_sentence(input_text: str, nlp) -> stanza.Document:
     """
 
     try:
-        # nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
+        nlp = stanza.Pipeline(language, processors="tokenize,lemma,pos,depparse")
         return nlp(input_text)
     except:
         try:
