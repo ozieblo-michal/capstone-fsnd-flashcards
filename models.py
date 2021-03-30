@@ -1,6 +1,4 @@
-#from sqlalchemy import Column, String, Table, create_engine
 from flask_sqlalchemy import SQLAlchemy
-#import json
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -48,16 +46,23 @@ class AuditTrail(db.Model):
 
     __tablename__ = 'auditTrail'
 
-    id         = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.now())
+    id         = db.Column(db.Integer,
+                           primary_key=True)
+    timestamp = db.Column(db.DateTime,
+                          default=datetime.now())
     username = db.Column(db.String)
-    deckID = db.Column(db.Integer, db.ForeignKey('decks.id'))
-    #questionID = db.Column(db.Integer, autoincrement=True, unique=True)
+    deckID = db.Column(db.Integer,
+                       db.ForeignKey('decks.id'))
 
-    decks = db.relationship("Decks", back_populates="auditTrail", cascade = "all, delete")
+    decks = db.relationship("Decks",
+                            back_populates="auditTrail",
+                            cascade = "all, delete")
 
-    questions = db.relationship("Questions", backref="auditTrail", uselist=False, cascade="all, delete",
-                                 passive_deletes=True)
+    questions = db.relationship("Questions",
+                                backref="auditTrail",
+                                uselist=False,
+                                cascade="all, delete",
+                                passive_deletes=True)
 
     def __repr__(self):
         return f'<AuditTrail {self.id} {self.timestamp}>'
@@ -89,7 +94,9 @@ class Questions(db.Model):
 
     __tablename__ = 'questions'
 
-    id = db.Column(db.Integer, db.ForeignKey('auditTrail.id', ondelete='CASCADE'), primary_key=True)
+    id = db.Column(db.Integer,
+                   db.ForeignKey('auditTrail.id', ondelete='CASCADE'),
+                   primary_key=True)
     sentence = db.Column(db.String)
     question = db.Column(db.String)
     answer = db.Column(db.String)
@@ -117,7 +124,7 @@ class Questions(db.Model):
     def format(self):
         return {
             'id'       : self.id,
-            'sentence': self.sentence,
+            'sentence' : self.sentence,
             'question' : self.question,
             'answer'   : self.answer
         }
