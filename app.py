@@ -6,7 +6,8 @@ from flask import (Flask,
                    render_template,
                    redirect,
                    url_for,
-                   flash)
+                   flash,
+                   session)
 from flask_cors import CORS
 from flask_bootstrap import Bootstrap
 
@@ -19,7 +20,21 @@ from models import (db,
 
 import pandas as pd
 
-from auth import (AuthError, requires_auth)
+from auth import AuthError #, requires_auth)
+
+
+
+
+
+from functools import wraps
+import json
+
+from werkzeug.exceptions import HTTPException
+
+from dotenv import load_dotenv, find_dotenv
+
+from authlib.integrations.flask_client import OAuth
+from six.moves.urllib.parse import urlencode
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -30,15 +45,60 @@ def create_app(test_config=None):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.urandom(32)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+
+
+
+
+    oauth = OAuth(app)
+
+    auth0 = oauth.register(
+        'auth0',
+        client_id='NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl',
+        client_secret='uSbbd3nPSKuSXKj7xF8Is875Hh0SigeiJDPnHB6fX5WSHTQToLK0mawtuWpnzv1j',
+        api_base_url='https://solitary-base-2169.eu.auth0.com',
+        access_token_url='https://solitary-base-2169.eu.auth0.com/oauth/token',
+        authorize_url='https://solitary-base-2169.eu.auth0.com/authorize',
+        client_kwargs={
+            'scope': 'openid profile email',
+        },
+    )
+
+
+
+
+    def requires_auth(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if 'profile' not in session:
+                # Redirect to Login page here
+                return redirect('/')
+            return f(*args, **kwargs)
+
+        return decorated
+
+
+
+
     Bootstrap(app) # Flask-Bootstrap requires this line
     db.app = app
     db.init_app(app)
     CORS(app)
     cors = CORS(app, resources={r"*": {"origins": "*"}})
 
-    #----------------------------------------------------------------------------#
-    # Controllers.
-    #----------------------------------------------------------------------------#
+
+
+
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+
+
+
+
 
     @app.route('/callback')
     def callback_handling():
@@ -54,26 +114,40 @@ def create_app(test_config=None):
             'name': userinfo['name'],
             'picture': userinfo['picture']
         }
-        return redirect(url_for('/dashboard'))
+        return redirect('/')
 
     @app.route('/login')
     def login():
-        return auth0.authorize_redirect(redirect_uri='/')
+        return auth0.authorize_redirect(redirect_uri='https://capstone-fsnd-flashcards.herokuapp.com')
 
     @app.route('/dashboard')
     @requires_auth
     def dashboard():
         return render_template('dashboard.html',
                                userinfo=session['profile'],
-                               userinfo_pretty=json.dumps(session['jwt_payload'], indent=4))
+                               userinfo_pretty=json.dumps(session['jwt_payload'],
+                                                          indent=4))
 
     @app.route('/logout')
     def logout():
         # Clear session stored data
         session.clear()
         # Redirect user to logout endpoint
-        params = {'returnTo': url_for('home', _external=True), 'client_id': 'NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl'}
+        params = {'returnTo': url_for('/', _external=True),
+                  'client_id': 'NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl'}
         return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
+
+
+
+
+
+
+
+
+
+    #----------------------------------------------------------------------------#
+    # Controllers.
+    #----------------------------------------------------------------------------#
 
     #### https://python-adv-web-apps.readthedocs.io/en/latest/flask_forms.html
     @app.route('/', methods=['GET'])
@@ -85,8 +159,8 @@ def create_app(test_config=None):
                                questions=questions)
 
     @app.route('/managedecks', methods=['GET'])
-    @requires_auth('get:details')
-    def managedecks(jwt):
+    @requires_auth
+    def managedecks():
         form = SelectDeck()
         questions = Questions.query.order_by('id').all()
         return render_template('managedecks.html',
@@ -94,8 +168,8 @@ def create_app(test_config=None):
                                questions=questions)
 
     @app.route('/', methods=['POST'])
-    @requires_auth('post:guest')
-    def manage_deck(jwt):
+    @requires_auth
+    def manage_deck():
 
         form = MainFormNoLabel()
 
@@ -158,8 +232,8 @@ def create_app(test_config=None):
                 abort(500)
 
     @app.route('/questionremove/<questionId>', methods=['DELETE'])
-    @requires_auth('delete:guest')
-    def questionremove(jwt, questionId):
+    @requires_auth
+    def questionremove(questionId):
         try:
             question_to_remove = Questions.query.filter(Questions.id == questionId).one_or_none()
             question_to_remove.delete()
@@ -172,8 +246,8 @@ def create_app(test_config=None):
                         'message': "Question successfully deleted"})
 
     @app.route('/deckremove/<deckId>', methods=['DELETE'])
-    @requires_auth('delete:details')
-    def removedeck(jwt, deckId):
+    @requires_auth
+    def removedeck(deckId):
         try:
             deck_to_remove = Decks.query.filter(Decks.id == deckId).one_or_none()
             deck_to_remove.delete()
@@ -185,8 +259,8 @@ def create_app(test_config=None):
 
     # https://knowledge.udacity.com/questions/419323
     @app.route("/updatesentence", methods=["POST"])
-    @requires_auth('post:details')
-    def updatesentence(jwt):
+    @requires_auth
+    def updatesentence():
         questionId = request.form.get("oldsentenceid")
         newsentence = request.form.get("newsentence")
         questions = Questions.query.filter(Questions.id==questionId).first()
@@ -195,8 +269,8 @@ def create_app(test_config=None):
         return redirect("/managedecks")
 
     @app.route("/updatequestion", methods=["POST"])
-    @requires_auth('post:details')
-    def updatequestion(jwt):
+    @requires_auth
+    def updatequestion():
         questionId = request.form.get("oldquestionid")
         newquestion = request.form.get("newquestion")
         questions = Questions.query.filter(Questions.id==questionId).first()
@@ -205,8 +279,8 @@ def create_app(test_config=None):
         return redirect("/managedecks")
 
     @app.route("/updateanswer", methods=["POST"])
-    @requires_auth('post:details')
-    def updateanswer(jwt):
+    @requires_auth
+    def updateanswer():
         questionId = request.form.get("oldanswerid")
         newanswer = request.form.get("newanswer")
         questions = Questions.query.filter(Questions.id==questionId).first()

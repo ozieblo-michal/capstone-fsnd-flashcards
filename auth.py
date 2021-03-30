@@ -6,7 +6,7 @@ from urllib.request import urlopen
 
 AUTH0_DOMAIN = 'solitary-base-2169.eu.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'https://capstone-fsnd-flashcards.herokuapp.com/'
+API_AUDIENCE = 'https://capstone-fsnd-flashcards.herokuapp.com'
 
 # https://auth0.com/docs/quickstart/backend/python/01-authorization
 
@@ -145,16 +145,16 @@ permission: string permission
 the decorator which passes the decoded payload to the decorated method
 '''
 
-def requires_auth(permission=''):
-    def requires_auth_decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            # use the get_token_auth_header method to get the token
-            token = get_token_auth_header()
-            # use the verify_decode_jwt method to decode the jwt
-            payload = verify_decode_jwt(token)
-            # use the check_permissions method validate claims and check the requested permission
-            check_permissions(permission, payload)
-            return f(payload, *args, **kwargs)
-        return wrapper
-    return requires_auth_decorator
+#def requires_auth(permission=''):
+#    def requires_auth_decorator(f):
+#        @wraps(f)
+#        def wrapper(*args, **kwargs):
+#            # use the get_token_auth_header method to get the token
+#            token = get_token_auth_header()
+#            # use the verify_decode_jwt method to decode the jwt
+#            payload = verify_decode_jwt(token)
+#            # use the check_permissions method validate claims and check the requested permission
+#            check_permissions(permission, payload)
+#            return f(payload, *args, **kwargs)
+#        return wrapper
+#    return requires_auth_decorator
