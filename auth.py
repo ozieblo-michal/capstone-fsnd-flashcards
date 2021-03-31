@@ -1,8 +1,11 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
+
+
+
 
 AUTH0_DOMAIN = 'solitary-base-2169.eu.auth0.com'
 ALGORITHMS = ['RS256']
@@ -25,9 +28,10 @@ extracts the access token from the Authorization Header
 
 def get_token_auth_header():
 
+    print(request.headers.get('Authorization', None)
+
     # attempt to get the header from the request
-    auth_header = request.headers.get('Authorization',
-                                      None)
+    auth_header = request.headers.get('Authorization', None)
 
     # raise an AuthError if no header is present
     if not auth_header:
@@ -145,16 +149,19 @@ permission: string permission
 the decorator which passes the decoded payload to the decorated method
 '''
 
-#def requires_auth(permission=''):
-#    def requires_auth_decorator(f):
-#        @wraps(f)
-#        def wrapper(*args, **kwargs):
-#            # use the get_token_auth_header method to get the token
-#            token = get_token_auth_header()
-#            # use the verify_decode_jwt method to decode the jwt
-#            payload = verify_decode_jwt(token)
-#            # use the check_permissions method validate claims and check the requested permission
-#            check_permissions(permission, payload)
-#            return f(payload, *args, **kwargs)
-#        return wrapper
-#    return requires_auth_decorator
+def requires_auth(permission=''):
+    def requires_auth_decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # use the get_token_auth_header method to get the token
+            token = get_token_auth_header()
+
+            print(token)
+
+            # use the verify_decode_jwt method to decode the jwt
+            payload = verify_decode_jwt(token)
+            # use the check_permissions method validate claims and check the requested permission
+            check_permissions(permission, payload)
+            return f(payload, *args, **kwargs)
+        return wrapper
+    return requires_auth_decorator

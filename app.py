@@ -20,7 +20,7 @@ from models import (db,
 
 import pandas as pd
 
-from auth import AuthError #, requires_auth)
+from auth import (AuthError, requires_auth)
 
 
 
@@ -33,7 +33,7 @@ from werkzeug.exceptions import HTTPException
 
 from dotenv import load_dotenv, find_dotenv
 
-from authlib.integrations.flask_client import OAuth
+#from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
 
 #----------------------------------------------------------------------------#
@@ -49,32 +49,19 @@ def create_app(test_config=None):
 
 
 
-    oauth = OAuth(app)
+    #oauth = OAuth(app)
 
-    auth0 = oauth.register(
-        'auth0',
-        client_id='NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl',
-        client_secret='uSbbd3nPSKuSXKj7xF8Is875Hh0SigeiJDPnHB6fX5WSHTQToLK0mawtuWpnzv1j',
-        api_base_url='https://solitary-base-2169.eu.auth0.com',
-        access_token_url='https://solitary-base-2169.eu.auth0.com/oauth/token',
-        authorize_url='https://solitary-base-2169.eu.auth0.com/authorize',
-        client_kwargs={
-            'scope': 'openid profile email',
-        },
-    )
-
-
-
-
-    def requires_auth(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            if 'profile' not in session:
-                # Redirect to Login page here
-                return redirect('/')
-            return f(*args, **kwargs)
-
-        return decorated
+    #auth0 = oauth.register(
+    #    'auth0',
+    #    client_id='NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl',
+    #    client_secret='uSbbd3nPSKuSXKj7xF8Is875Hh0SigeiJDPnHB6fX5WSHTQToLK0mawtuWpnzv1j',
+    #    api_base_url='https://solitary-base-2169.eu.auth0.com',
+    #    access_token_url='https://solitary-base-2169.eu.auth0.com/oauth/token',
+    #    authorize_url='https://solitary-base-2169.eu.auth0.com/authorize?audience=https://solitary-base-2169.eu.auth0.com/api/v2/&response_type=token&client_id=NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl&redirect_uri=https://capstone-fsnd-flashcards.herokuapp.com',
+    #    client_kwargs={
+    #        'scope': 'openid profile email',
+    #    },
+    #)
 
 
 
@@ -100,45 +87,41 @@ def create_app(test_config=None):
 
 
 
-    @app.route('/callback')
-    def callback_handling():
-        # Handles response from token endpoint
-        auth0.authorize_access_token()
-        resp = auth0.get('userinfo')
-        userinfo = resp.json()
+    #@app.route('/callback')
+    #def callback_handling():
+    #    # Handles response from token endpoint
+    #    auth0.authorize_access_token()
+    #    resp = auth0.get('userinfo')
+    #    userinfo = resp.json()
 
         # Store the user information in flask session.
-        session['jwt_payload'] = userinfo
-        session['profile'] = {
-            'user_id': userinfo['sub'],
-            'name': userinfo['name'],
-            'picture': userinfo['picture']
-        }
-        return redirect('/')
+    #    session['jwt_payload'] = userinfo
+    #    session['profile'] = {
+    #        'user_id': userinfo['sub'],
+    #        'name': userinfo['name'],
+    #        'picture': userinfo['picture']
+    #    }
+    #    return redirect('/')
 
-    @app.route('/login')
-    def login():
-        return auth0.authorize_redirect(redirect_uri='https://capstone-fsnd-flashcards.herokuapp.com')
+    #@app.route('/login')
+    #def login():
+    #    return auth0.authorize_redirect(redirect_uri='https://solitary-base-2169.eu.auth0.com/authorize?audience=https://capstone-fsnd-flashcards.herokuapp.com&response_type=token&client_id=NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl&redirect_uri=https://capstone-fsnd-flashcards.herokuapp.com')
 
-    @app.route('/dashboard')
-    @requires_auth
-    def dashboard():
-        return render_template('dashboard.html',
-                               userinfo=session['profile'],
-                               userinfo_pretty=json.dumps(session['jwt_payload'],
-                                                          indent=4))
+    #@app.route('/dashboard')
+    #def dashboard():
+    #    return render_template('dashboard.html',
+    #                           userinfo=session['profile'],
+    #                           userinfo_pretty=json.dumps(session['jwt_payload'],
+    #                                                      indent=4))
 
-    @app.route('/logout')
-    def logout():
-        # Clear session stored data
-        session.clear()
-        # Redirect user to logout endpoint
-        params = {'returnTo': url_for('/', _external=True),
-                  'client_id': 'NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl'}
-        return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
-
-
-
+    #@app.route('/logout')
+    #def logout():
+    #    # Clear session stored data
+    #    session.clear()
+    #    # Redirect user to logout endpoint
+    #    params = {'returnTo': url_for('/', _external=True),
+    #              'client_id': 'NifC5AEOqX78XrBBsDDMf5OlKEqT2YFl'}
+    #    return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
 
 
 
@@ -159,8 +142,8 @@ def create_app(test_config=None):
                                questions=questions)
 
     @app.route('/managedecks', methods=['GET'])
-    @requires_auth
-    def managedecks():
+    @requires_auth("get:details")
+    def managedecks(jwt):
         form = SelectDeck()
         questions = Questions.query.order_by('id').all()
         return render_template('managedecks.html',
@@ -168,8 +151,8 @@ def create_app(test_config=None):
                                questions=questions)
 
     @app.route('/', methods=['POST'])
-    @requires_auth
-    def manage_deck():
+    @requires_auth("get:details")
+    def manage_deck(jwt):
 
         form = MainFormNoLabel()
 
@@ -232,7 +215,6 @@ def create_app(test_config=None):
                 abort(500)
 
     @app.route('/questionremove/<questionId>', methods=['DELETE'])
-    @requires_auth
     def questionremove(questionId):
         try:
             question_to_remove = Questions.query.filter(Questions.id == questionId).one_or_none()
@@ -246,7 +228,6 @@ def create_app(test_config=None):
                         'message': "Question successfully deleted"})
 
     @app.route('/deckremove/<deckId>', methods=['DELETE'])
-    @requires_auth
     def removedeck(deckId):
         try:
             deck_to_remove = Decks.query.filter(Decks.id == deckId).one_or_none()
@@ -259,7 +240,6 @@ def create_app(test_config=None):
 
     # https://knowledge.udacity.com/questions/419323
     @app.route("/updatesentence", methods=["POST"])
-    @requires_auth
     def updatesentence():
         questionId = request.form.get("oldsentenceid")
         newsentence = request.form.get("newsentence")
@@ -269,7 +249,6 @@ def create_app(test_config=None):
         return redirect("/managedecks")
 
     @app.route("/updatequestion", methods=["POST"])
-    @requires_auth
     def updatequestion():
         questionId = request.form.get("oldquestionid")
         newquestion = request.form.get("newquestion")
@@ -279,7 +258,6 @@ def create_app(test_config=None):
         return redirect("/managedecks")
 
     @app.route("/updateanswer", methods=["POST"])
-    @requires_auth
     def updateanswer():
         questionId = request.form.get("oldanswerid")
         newanswer = request.form.get("newanswer")
