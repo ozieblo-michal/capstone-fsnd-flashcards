@@ -10,7 +10,8 @@ from flask import (Flask,
                    render_template,
                    redirect,
                    url_for,
-                   flash)
+                   flash,
+                   session)
 from flask_cors import CORS
 from flask_bootstrap import Bootstrap
 
@@ -25,6 +26,9 @@ from drop_everything import drop_everything
 
 import pandas as pd
 
+from auth import AuthError, requires_auth
+
+import sys
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -60,15 +64,33 @@ def create_app(test_config=None):
     # Controllers.
     #----------------------------------------------------------------------------#
 
+# https://stackoverflow.com/questions/19069701/python-requests-library-how-to-pass-authorization-header-with-single-token
+
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
     #### https://python-adv-web-apps.readthedocs.io/en/latest/flask_forms.html
 
     @app.route('/', methods=['GET'])
     def index():
         form = MainFormNoLabel()
         questions = Questions.query.all()
+
+        YOUR_DOMAIN = os.environ.get('YOUR_DOMAIN')
+        API_IDENTIFIER = os.environ.get('API_IDENTIFIER')
+        YOUR_CLIENT_ID = os.environ.get('YOUR_CLIENT_ID')
+        YOUR_CALLBACK_URI = os.environ.get('YOUR_CALLBACK_URI')
+
+        AUTH0_AUTHORIZE_URL = f"https://{YOUR_DOMAIN}/authorize?audience={API_IDENTIFIER}&response_type=token&client_id={YOUR_CLIENT_ID}&redirect_uri={YOUR_CALLBACK_URI}"
+
         return render_template('index.html',
                                form=form,
-                               questions=questions)
+                               questions=questions,
+                               AUTH0_AUTHORIZE_URL=AUTH0_AUTHORIZE_URL)
 
     @app.route('/', methods=['POST'])
     def manage_deck():
@@ -147,6 +169,7 @@ def create_app(test_config=None):
                         'message': "Question successfully deleted"})
 
     @app.route('/managedecks', methods=['GET'])
+    #@requires_auth('get:managedecks')
     def managedecks():
         form = SelectDeck()
         questions = Questions.query.order_by('id').all()
@@ -220,6 +243,49 @@ def create_app(test_config=None):
         return jsonify({"success": False,
                         "error": 500,
                         "message": "Internal server error"}), 500
+
+    @app.errorhandler(AuthError)
+    def autherror(error):
+        error_code = error.status_code
+        return jsonify({'success': False,
+                        'error': error_code,
+                        'message': error.error['description']}), error_code
+
+
+
+# https://stackoverflow.com/questions/18752995/how-to-get-access-to-the-url-segments-after-a-in-python-flask
+# https://stackoverflow.com/questions/22276170/unable-to-get-access-token-from-url-as-argument
+
+    @app.route('/token', methods=["POST"])
+    def token():
+
+        #location_href = request.url
+        #print(location_href)
+        #sys.stdout.flush()
+
+        location_href = location_href.split("access_token=")[1]
+
+        token = location_href.split("&")[0]
+
+        token_type = location_href.split("&")[1]
+        token_type = token_type.split("token_type=")[1]
+        token_type = token_type.split("&")[0]
+
+        session['Authorization'] = token_type + " " + token
+
+        print(session['Authorization'])
+        sys.stdout.flush()
+
+        return redirect("/permission")
+
+    @app.route('/permission')
+    @requires_auth("get:managedecks")
+    def permission():
+        print("Authorization success!")
+        sys.stdout.flush()
+        return redirect("/")
+
+
 
     return app
 

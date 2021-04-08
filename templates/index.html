@@ -71,6 +71,48 @@ Capstone project
         }
       </script>
 
+      <p></p>
+
+      <a href="{{ AUTH0_AUTHORIZE_URL }}" id="login-button">Login</a>
+
+      <p></p>
+
+      <!--
+      <script>
+        const btn = document.querySelectorAll('.login-button');
+
+        btn.onclick = function(e) {
+            const url = document.location.href;
+            const url = url.split('access_token=')[1]
+            const token = url.split('&')[0]
+            console.log(token);
+            fetch('/token/' + token, { method: 'POST' });
+          }
+      </script>
+      -->
+
+      <script>
+        var hash = window.location.hash.substring(1);
+        var accessString = hash.indexOf("&");
+
+        /* 13 because that bypasses 'access_token' string */
+        access_token = hash.substring(13, accessString);
+        console.log("Access Token: " + access_token);
+      </script>
+
+      <script>
+        const btn = document.querySelectorAll('.login-button');
+
+        btn.onclick = function(e) {
+            const url = document.location.href;
+            const url = url.split('access_token=')[1]
+            const token = url.split('&')[0]
+            console.log(token);
+            fetch('/token/' + token, { method: 'POST' });
+          }
+      </script>
+
+
     </div>
   </div>
 </div>
