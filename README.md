@@ -72,7 +72,7 @@ All details about how to do it are on Udacity FSND course or on Auth0 platform h
 
 Log-in link to the app to obtain access-token (permissions are given by the admin; the app has been submitted on 15 Apr 2021 and example tokens will be valid until the submission be checked)
 
-https://dev-11opmcqr.eu.auth0.com/authorize?audience=https://capstone-fsnd-flashcards.herokuapp.com/&response_type=token&client_id=0qqHkqo6w24mc3PysFwUVdj4A5y5x9Qq&redirect_uri=https://capstone-fsnd-flashcards.herokuapp.com/questions
+https://dev-11opmcqr.eu.auth0.com/authorize?audience=https://capstone-fsnd-flashcards.herokuapp.com/&response_type=token&client_id=0qqHkqo6w24mc3PysFwUVdj4A5y5x9Qq&redirect_uri=https://capstone-fsnd-flashcards.herokuapp.com/
 
 example cURLs:
 
