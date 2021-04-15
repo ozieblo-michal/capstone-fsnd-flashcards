@@ -6,6 +6,18 @@ https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd0044
 
 The application was deployed on the Heroku platform using Docker. Please check: https://capstone-fsnd-flashcards.herokuapp.com/
 
+## The motivation for the project and further plans about it
+
+The application was created according to the PROJECT SPECIFICATION FSND - Capstone criteria.
+The backend was designed to be paired with the frontend using WTForms in the future.
+The idea is for the future development of this app to handle input from the user - any text note.
+Then, the backend, expanded with a function supporting finding entities in sentences, will create decks with questions
+containing a gap to fill in, which can be managed from the frontend level.
+
+Check inspirations:
+- https://stanfordnlp.github.io/stanza/
+- https://apps.ankiweb.net
+
 ### Installing Dependencies
 
 #### Python 3.7
@@ -113,20 +125,10 @@ Detailed test descriptions are included in the scripts.
 - https://knowledge.udacity.com/questions/419323
 - https://knowledge.udacity.com/questions/422782
 
-## Short comment on the motivation for project and further plans
+## Last comment
 
-The application was created according to the PROJECT SPECIFICATION FSND - Capstone criteria.
-The backend was designed to be paired with the frontend using WTForms in the future.
-The idea is for the future development of this app to handle input from the user - any text note.
-Then, the backend, expanded with a function supporting finding entities in sentences, will create decks with questions
-containing a gap to fill in, which can be managed from the frontend level.
-
-Plan to submit an application in this format was squandered by the Heroku cache limits for free access (500MB, but
+Plan to submit an application in the full format including Stanza, described in the introduction, was squandered by the Heroku cache limits for free access (500MB, but
 the quite nice demo demanded around 20% more).
 
 Note for the future, it's best to use Angular to handle Auth0 tokens from the frontend. Simple javascript is not enough
 for RBAC, but for regular access only for logged in users already yes.
-
-Check inspirations:
-https://stanfordnlp.github.io/stanza/
-https://apps.ankiweb.net
