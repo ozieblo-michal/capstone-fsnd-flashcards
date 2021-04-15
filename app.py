@@ -2,6 +2,8 @@
 # Imports
 #----------------------------------------------------------------------------#
 
+from dotenv import load_dotenv
+
 import os
 from flask import (Flask,
                    request,
@@ -24,34 +26,36 @@ import pandas as pd
 
 from auth import AuthError, requires_auth
 
-QUESTIONS_PER_PAGE = 10
+#load_dotenv()
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+SQLALCHEMY_TRACK_MODIFICATIONS = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
+RESET_DATABASE = os.environ.get('RESET_DATABASE')
 
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 
 def setup_db(app):
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.urandom(32)
-
-    # DB_URL = "postgresql:///herok"
-    # app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql:///herokutest" # os.environ.get('SQLALCHEMY_DATABASE_URI')
-
     db.app = app
     db.init_app(app)
-
-    # drop_everything()
-
-    # db.drop_all()
-    # db.create_all()
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
 
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    app.config['SECRET_KEY'] = os.urandom(32)
+
     setup_db(app)
+
+    if RESET_DATABASE:
+        drop_everything()
+        db.drop_all()
+        db.create_all()
+
+    #db.drop_all()
+    #db.create_all()
 
     CORS(app)
 
@@ -74,29 +78,17 @@ def create_app(test_config=None):
 
     #### https://python-adv-web-apps.readthedocs.io/en/latest/flask_forms.html
 
-    def paginate_questions(request, questions_list):
-
-        page = request.args.get('page', 1, type=int)
-
-        start = (page - 1) * QUESTIONS_PER_PAGE
-        end = start + QUESTIONS_PER_PAGE
-
-        questions = [question.format() for question in questions_list]
-
-        paginated_questions = questions[start:end]
-
-        return paginated_questions
-
     @app.route('/', methods=['GET'])
     def show_questions():
-        questions = Questions.query.all()
-        paginated_questions = paginate_questions(request, questions)
-        if len(paginated_questions) == 0:
+        try:
+            questions = Questions.query.all()
+            questions = [question.format() for question in questions]
+        except:
             abort(404)
         return jsonify({
             'success': True,
             'n_questions': len(questions),
-            'questions': paginated_questions
+            'questions': questions
         })
 
     @app.route('/questions', methods=['POST'])
@@ -155,6 +147,7 @@ def create_app(test_config=None):
             question_to_remove.delete()
         except:
             db.session.rollback()
+            abort(404)
         finally:
             db.session.close()
         return jsonify({'success': True,
@@ -164,6 +157,13 @@ def create_app(test_config=None):
     @app.route('/decks', methods=['GET'])
     def decks():
         decks = Decks.query.order_by('id').all()
+
+        try:
+            decks = Decks.query.order_by('id').all()
+            decks = [deck.format() for deck in decks]
+        except:
+            abort(404)
+
         return jsonify({
             'success': True,
             'n_decks': len(decks),
@@ -173,11 +173,13 @@ def create_app(test_config=None):
     @app.route('/deckremove/<deckId>', methods=['DELETE'])
     @requires_auth('delete:deck')
     def remove_deck(jwt, deckId):
+
         try:
             deck_to_remove = Decks.query.filter(Decks.id == deckId).one_or_none()
             deck_to_remove.delete()
         except:
             db.session.rollback()
+            abort(404)
         finally:
             db.session.close()
         return jsonify({
@@ -190,9 +192,12 @@ def create_app(test_config=None):
     @app.route("/updatesentence", methods=["POST"])
     @requires_auth('patch:sentence')
     def update_sentence(jwt):
-        data = request.get_json()
+        data = request.get_json(force=True)
         questionId = data.get('oldsentenceid', '')
         newsentence = data.get('newsentence', '')
+
+
+
         if ((questionId == '') or (newsentence == '')):
             abort(422)
         questions = Questions.query.filter(Questions.id==questionId).first()
@@ -206,7 +211,7 @@ def create_app(test_config=None):
     @app.route("/updatequestion", methods=["POST"])
     @requires_auth('path:question')
     def update_question(jwt):
-        data = request.get_json()
+        data = request.get_json(force=True)
         questionId = data.get('oldquestionid', '')
         newquestion = data.get('newquestion', '')
         if ((questionId == '') or (newquestion == '')):
@@ -222,7 +227,7 @@ def create_app(test_config=None):
     @app.route("/updateanswer", methods=["POST"])
     @requires_auth('patch:answer')
     def update_answer(jwt):
-        data = request.get_json()
+        data = request.get_json(force=True)
         questionId = data.get('oldanswerid', '')
         newanswer = data.get('newanswer', '')
         if ((questionId == '') or (newanswer == '')):

@@ -6,13 +6,13 @@ from urllib.request import urlopen
 
 import os
 
-AUTH0_DOMAIN = 'dev-11opmcqr.eu.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'http://127.0.0.1:5000'
-
 #AUTH0_DOMAIN = YOUR_DOMAIN
 ALGORITHMS = ['RS256']
 #API_AUDIENCE = API_IDENTIFIER
+
+
+from dotenv import load_dotenv
+load_dotenv()
 
 AUTH0_DOMAIN = os.environ.get('YOUR_DOMAIN')
 API_AUDIENCE = os.environ.get('API_IDENTIFIER')
@@ -37,6 +37,8 @@ def get_token_auth_header():
     # attempt to get the header from the request
     auth_header = request.headers.get('Authorization',
                                       None)
+
+    #print(auth_header)
 
     # raise an AuthError if no header is present
     if not auth_header:
@@ -80,6 +82,9 @@ def check_permissions(permission, payload):
 
     if payload.get('permissions'):
         token_permissions = payload.get("permissions")
+
+        print(token_permissions)
+
         # raise an AuthError if the requested permission string is not in the payload permissions array
         if (permission not in token_permissions):
             raise AuthError({'code': 'invalid_permissions',
