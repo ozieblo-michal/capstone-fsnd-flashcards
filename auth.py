@@ -1,29 +1,25 @@
+import os
 import json
-from flask import request, _request_ctx_stack
+from flask import (request, _request_ctx_stack)
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
-
-import os
-
-#AUTH0_DOMAIN = YOUR_DOMAIN
-ALGORITHMS = ['RS256']
-#API_AUDIENCE = API_IDENTIFIER
-
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
 AUTH0_DOMAIN = os.environ.get('YOUR_DOMAIN')
 API_AUDIENCE = os.environ.get('API_IDENTIFIER')
 
-# https://auth0.com/docs/quickstart/backend/python/01-authorization
+ALGORITHMS = ['RS256']
 
 '''
 AuthError Exception
 A standardized way to communicate auth failure modes
 '''
+
 class AuthError(Exception):
+
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
@@ -37,8 +33,6 @@ def get_token_auth_header():
     # attempt to get the header from the request
     auth_header = request.headers.get('Authorization',
                                       None)
-
-    #print(auth_header)
 
     # raise an AuthError if no header is present
     if not auth_header:
@@ -83,8 +77,6 @@ def check_permissions(permission, payload):
     if payload.get('permissions'):
         token_permissions = payload.get("permissions")
 
-        print(token_permissions)
-
         # raise an AuthError if the requested permission string is not in the payload permissions array
         if (permission not in token_permissions):
             raise AuthError({'code': 'invalid_permissions',
@@ -103,8 +95,6 @@ def check_permissions(permission, payload):
 '''
 validate decoded JWT token and return the decoded payload
 token: a json web token (string)
-!!NOTE urlopen has a common certificate error described here: 
-https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 
 def verify_decode_jwt(token):
@@ -155,7 +145,7 @@ def verify_decode_jwt(token):
 
 '''
 decorator method
-permission: string permission (i.e. 'post:drink')
+permission: string permission (i.e. 'post:question')
 the decorator which passes the decoded payload to the decorated method
 '''
 

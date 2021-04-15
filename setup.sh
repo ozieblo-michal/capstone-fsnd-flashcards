@@ -1,3 +1,8 @@
-SQLALCHEMY_TRACK_MODIFICATIONS=False
-DATABASE_URL=postgresql-sinuous-08284
-EXCITED=true
+API_IDENTIFIER='https://capstone-fsnd-flashcards.herokuapp.com/'
+DATABASE_URL='postgres://xshkmsdwewiddh:e2fbdf65f8cb9eb11e5b12f02d44b7c9dc690e7d71f6e3cc6de44758837f0418@ec2-176-34-222-188.eu-west-1.compute.amazonaws.com:5432/da0hggmqbjrpmp'
+EXCITED='true'
+SQLALCHEMY_DATABASE_URI='postgres://xshkmsdwewiddh:e2fbdf65f8cb9eb11e5b12f02d44b7c9dc690e7d71f6e3cc6de44758837f0418@ec2-176-34-222-188.eu-west-1.compute.amazonaws.com:5432/da0hggmqbjrpmp'
+SQLALCHEMY_TRACK_MODIFICATIONS='False'
+YOUR_CALLBACK_URI='https://capstone-fsnd-flashcards.herokuapp.com/token'
+YOUR_CLIENT_ID='0qqHkqo6w24mc3PysFwUVdj4A5y5x9Qq'
+YOUR_DOMAIN='dev-11opmcqr.eu.auth0.com'

@@ -4,7 +4,9 @@ from sqlalchemy.schema import DropConstraint, DropTable, MetaData, Table
 from models import db
 
 def drop_everything():
-    """(On a live db) drops all foreign key constraints before dropping all tables.
+
+    """
+    (On a live db) drops all foreign key constraints before dropping all tables.
     Workaround for SQLAlchemy not doing DROP ## CASCADE for drop_all()
     (https://github.com/pallets/flask-sqlalchemy/issues/722)
     """
@@ -16,6 +18,7 @@ def drop_everything():
     # We need to re-create a minimal metadata with only the required things to
     # successfully emit drop constraints and tables commands for postgres (based
     # on the actual schema of the running instance)
+
     meta = MetaData()
     tables = []
     all_fkeys = []

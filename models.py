@@ -1,13 +1,7 @@
-#from sqlalchemy import Column, String, Table, create_engine
 from flask_sqlalchemy import SQLAlchemy
-#import json
 from datetime import datetime
 
 db = SQLAlchemy()
-
-#----------------------------------------------------------------------------#
-# Models.
-#----------------------------------------------------------------------------#
 
 class Decks(db.Model):
 
@@ -16,8 +10,6 @@ class Decks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=False)
 
-    # https://stackoverflow.com/questions/25002620/argumenterror-relationship-expects-a-class-or-mapper-argument
-    # "Explicit is better than implicit" (Zen of Python)
     auditTrail = db.relationship("AuditTrail", back_populates="decks", cascade = "all, delete, delete-orphan")
 
     def __repr__(self):
@@ -38,21 +30,17 @@ class Decks(db.Model):
         db.session.commit()
 
     def format(self):
-        return {
-            'id'   : self.id,
-            'name' : self.name
-        }
-
+        return {'id'   : self.id,
+                'name' : self.name}
 
 class AuditTrail(db.Model):
 
     __tablename__ = 'auditTrail'
 
-    id         = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.now())
     username = db.Column(db.String)
     deckID = db.Column(db.Integer, db.ForeignKey('decks.id'))
-    #questionID = db.Column(db.Integer, autoincrement=True, unique=True)
 
     decks = db.relationship("Decks", back_populates="auditTrail", cascade = "all, delete")
 
@@ -77,13 +65,11 @@ class AuditTrail(db.Model):
         db.session.commit()
 
     def format(self):
-        return {
-            'id'         : self.id,
-            'timestamp'  : self.timestamp,
-            'username'   : self.username,
-            'deckID'     : self.deckID,
-            'questionID' : self.questionID,
-        }
+        return {'id'         : self.id,
+                'timestamp'  : self.timestamp,
+                'username'   : self.username,
+                'deckID'     : self.deckID,
+                'questionID' : self.questionID}
 
 class Questions(db.Model):
 
@@ -115,9 +101,7 @@ class Questions(db.Model):
         db.session.commit()
 
     def format(self):
-        return {
-            'id'       : self.id,
-            'sentence': self.sentence,
-            'question' : self.question,
-            'answer'   : self.answer
-        }
+        return {'id'       : self.id,
+                'sentence' : self.sentence,
+                'question' : self.question,
+                'answer'   : self.answer}
